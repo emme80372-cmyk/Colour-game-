@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة الألوان</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f0f0; }
+    #game, #result { display: none; margin-top: 50px; }
+    .color-box { width: 100px; height: 100px; display: inline-block; margin: 10px; cursor: pointer; border-radius: 10px; }
+    #start-btn, #restart-btn { padding: 10px 20px; font-size: 20px; cursor: pointer; margin-top: 20px; }
+    #score, #timer { font-size: 20px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>تحدي الألوان</h1>
+
+  <div id="home">
+      <button id="start-btn">ابدأ اللعبة</button>
+  </div>
+
+  <div id="game">
+      <h2>اللون المطلوب: <span id="target-color"></span></h2>
+      <div id="color-container"></div>
+      <div id="score">النقاط: 0</div>
+      <div id="timer">الوقت: 30</div>
+  </div>
+
+  <div id="result">
+      <h2>انتهت اللعبة!</h2>
+      <p id="final-score"></p>
+      <button id="restart-btn">إعادة اللعب</button>
+  </div>
+
+  <script>
+    const colors = ['أحمر', 'أزرق', 'أخضر', 'أصفر'];
+    const colorCodes = {'أحمر':'#e74c3c','أزرق':'#3498db','أخضر':'#2ecc71','أصفر':'#f1c40f'};
+    let score = 0, time = 30, timerInterval;
+
+    const startBtn = document.getElementById('start-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const homeDiv = document.getElementById('home');
+    const gameDiv = document.getElementById('game');
+    const resultDiv = document.getElementById('result');
+    const targetColorSpan = document.getElementById('target-color');
+    const colorContainer = document.getElementById('color-container');
+    const scoreDiv = document.getElementById('score');
+    const timerDiv = document.getElementById('timer');
+    const finalScoreP = document.getElementById('final-score');
+
+    function startGame() {
+        score = 0;
+        time = 30;
+        homeDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+        gameDiv.style.display = 'block';
+        updateScore();
+        updateTimer();
+        nextRound();
+        timerInterval = setInterval(() => {
+            time--;
+            updateTimer();
+            if(time <= 0){
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function nextRound() {
+        colorContainer.innerHTML = '';
+        const targetColor = colors[Math.floor(Math.random()*colors.length)];
+        targetColorSpan.textContent = targetColor;
+        const shuffled = [...colors].sort(() => 0.5 - Math.random());
+        shuffled.forEach(color => {
+            const box = document.createElement('div');
+            box.className = 'color-box';
+            box.style.backgroundColor = colorCodes[color];
+            box.onclick = () => {
+                if(color === targetColor){
+                    score++;
+                    updateScore();
+                } else {
+                    time = Math.max(time-3,0);
+                    updateTimer();
+                }
+                nextRound();
+            };
+            colorContainer.appendChild(box);
+        });
+    }
+
+    function updateScore(){ scoreDiv.textContent = 'النقاط: ' + score; }
+    function updateTimer(){ timerDiv.textContent = 'الوقت: ' + time; }
+
+    function endGame(){
+        clearInterval(timerInterval);
+        gameDiv.style.display = 'none';
+        finalScoreP.textContent = 'نقاطك: ' + score;
+        resultDiv.style.display = 'block';
+    }
+
+    startBtn.onclick = startGame;
+    restartBtn.onclick = startGame;
+  </script>
+</body>
+</html>
